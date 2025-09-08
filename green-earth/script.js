@@ -22,7 +22,7 @@ const displayCategory = (category) => {
     
     category.forEach((cat) => {
        categoryDiv.innerHTML  += `
-       <li class="list-none text-xl py-2 px-4 mt-4 rounded-lg cursor-pointer hover:transition hover:bg-green-400">${cat.category_name}</li>
+       <li onclick = "clickCategory(${cat.id})" class="list-none text-xl py-2 px-4 mt-4 rounded-lg cursor-pointer hover:transition hover:bg-green-400">${cat.category_name}</li>
        `
 
     })
@@ -38,12 +38,38 @@ const displayCategory = (category) => {
     })
 }
 
+const clickCategory = async (id) => {
+    const res = await fetch(`https://openapi.programming-hero.com/api/category/${id}`)
+    const data = await res.json()
 
+    displayCategoryCard(data.plants)
+}
+
+const displayCategoryCard = (catCard) =>{
+    const cardTreeSection = document.getElementById('card-tree-section');
+    cardTreeSection.innerHTML = "";
+    catCard.forEach((cards)=>{
+        cardTreeSection.innerHTML += `
+        
+          <div class= "bg-white p-3 rounded-lg w-[265px] hover:shadow-2xl ">
+                <div class="w-[243px] h-[185px]">
+                    <img class="w-full h-full object-cover rounded-md" src="${cards.image}">
+                </div>
+                  <h1 class="mt-3 text-xl font-bold">${cards.name}</h1>
+                  <p class="my-3 h-16 text-xs">${cards.description}</p>
+                  <div class="flex justify-between  mb-3 ">
+                    <h2 class="bg-green-200 px-2 rounded-full">${cards.category}</h2>
+                    <h2 class="font-semibold mr-3"><span class=" text-xl font-bolder">৳</span>${cards.price}</h2>
+                  </div>
+                  <button class="bg-green-700 w-full text-white rounded-3xl py-1 cursor-pointer active:bg-green-400 active:transition">Add to Cart</button>
+               </div>
+        `
+    })
+}
 
 
 
 loadCategories()
-
 
 
 // load all trees 
@@ -64,7 +90,7 @@ const displayAllPlants = (plants) =>{
     const cardTrees = document.getElementById('card-tree-section');
 
     plants.forEach((plant) => {
-        console.log(plant)
+        // console.log(plant)
         cardTrees.innerHTML += `
           <div class= "bg-white p-3 rounded-lg w-[265px] hover:shadow-2xl ">
                 <div class="w-[243px] h-[185px]">
@@ -82,8 +108,7 @@ const displayAllPlants = (plants) =>{
     })
 }
 
-
-
-
-
 loadAllPlants()
+
+
+
