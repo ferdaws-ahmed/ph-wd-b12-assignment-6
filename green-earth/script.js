@@ -1,9 +1,28 @@
 
 
+let allPlantsInfo = []; 
+
+// spinner section
+const manageSpinner = (status) =>{
+    if(status === true){
+        document.getElementById('spinner').classList.remove('hidden');
+        document.getElementById('card-tree-section').classList.add('hidden')
+    }
+    else{
+        document.getElementById('card-tree-section').classList.remove('hidden');
+        document.getElementById('spinner').classList.add('hidden')
+    }
+}
+
+
+
+
+
 
 // load categories ----------->
 
 const loadCategories = async() => {
+    
     try{
         const res = await fetch("https://openapi.programming-hero.com/api/categories");
 
@@ -36,9 +55,11 @@ const displayCategory = (category) => {
             e.target.classList.add('bg-green-500')
         }
     })
+    
 }
 
 const clickCategory = async (id) => {
+    manageSpinner(true)
     const res = await fetch(`https://openapi.programming-hero.com/api/category/${id}`)
     const data = await res.json()
 
@@ -55,16 +76,17 @@ const displayCategoryCard = (catCard) =>{
                 <div class="w-[243px] h-[185px]">
                     <img class="w-full h-full object-cover rounded-md" src="${cards.image}">
                 </div>
-                  <h1 class="mt-3 text-xl font-bold">${cards.name}</h1>
-                  <p class="my-3 h-16 text-xs">${cards.description}</p>
+                  <h1 onclick="showModalInfo(${cards.id})" class="mt-3 text-xl font-bold cursor-pointer hover:text-blue-600 active:text-red-600">${cards.name}</h1>
+                  <p class="my-3 h-[4.5rem] text-xs">${cards.description}</p>
                   <div class="flex justify-between  mb-3 ">
                     <h2 class="bg-green-200 px-2 rounded-full">${cards.category}</h2>
                     <h2 class="font-semibold mr-3"><span class=" text-xl font-bolder">৳</span>${cards.price}</h2>
                   </div>
-                  <button class="bg-green-700 w-full text-white rounded-3xl py-1 cursor-pointer active:bg-green-400 active:transition">Add to Cart</button>
+                  <button onclick="addToCartBtn(${cards.id})" class="bg-green-700 w-full text-white rounded-3xl py-1 cursor-pointer active:bg-green-400 active:transition">Add to Cart</button>
                </div>
         `
     })
+    manageSpinner(false);
 }
 
 
@@ -75,10 +97,12 @@ loadCategories()
 // load all trees 
 
 const loadAllPlants = async () =>{
+    manageSpinner(true);
     try{
         const res = await fetch("https://openapi.programming-hero.com/api/plants");
         const data = await res.json();
-        displayAllPlants(data.plants)
+        allPlantsInfo = data.plants;
+        displayAllPlants(allPlantsInfo)
         
     }
     catch(error){
@@ -88,27 +112,102 @@ const loadAllPlants = async () =>{
 
 const displayAllPlants = (plants) =>{
     const cardTrees = document.getElementById('card-tree-section');
+  
+    const modalDetails = document.getElementById('modal-details');
 
     plants.forEach((plant) => {
+
+        
         // console.log(plant)
         cardTrees.innerHTML += `
           <div class= "bg-white p-3 rounded-lg w-[265px] hover:shadow-2xl ">
                 <div class="w-[243px] h-[185px]">
                     <img class="w-full h-full object-cover rounded-md" src="${plant.image}">
                 </div>
-                  <h1 class="mt-3 text-xl font-bold">${plant.name}</h1>
+                  <h1 onclick="showModalInfo(${plant.id})" class="mt-3 text-xl font-bold cursor-pointer hover:text-blue-600 active:text-red-600">${plant.name}</h1>
                   <p class="my-3 h-16 text-xs">${plant.description}</p>
-                  <div class="flex justify-between  mb-3 ">
+                  <div class="flex justify-between mt-2  mb-3 ">
                     <h2 class="bg-green-200 px-2 rounded-full">${plant.category}</h2>
                     <h2 class="font-semibold mr-3"><span class=" text-xl font-bolder">৳</span>${plant.price}</h2>
                   </div>
-                  <button class="bg-green-700 w-full text-white rounded-3xl py-1 cursor-pointer active:bg-green-400 active:transition">Add to Cart</button>
+                  <button onclick="addToCartBtn(${plant.id})" class="bg-green-700 w-full text-white rounded-3xl py-1 cursor-pointer active:bg-green-400 active:transition">Add to Cart</button>
                </div>
         `
+
+       
+
+        
     })
+
+    manageSpinner(false);
+   
 }
 
 loadAllPlants()
 
+ // showModal function---
 
+ const showModalInfo = (plantId) => {
+    
+    const plant = allPlantsInfo.find(plant => plant.id === plantId);
+    
+    const modalDetails = document.getElementById('modal-details');
+
+    if (plant) {
+        modalDetails.innerHTML = `
+            <h1 class="text-xl font-bold">${plant.name}</h1>
+            <div class="w-[330px] h-[230px]">
+                <img class="w-full h-full object-cover rounded-md" src="${plant.image}">
+            </div>
+            <h3 class="text-sm"><span class="text-lg font-semibold">Category:</span> ${plant.category}</h3>
+            <h3><span class="font-semibold">Price:</span> ৳${plant.price}</h3>
+            <p class="">${plant.description}</p>
+        `;
+        
+        my_modal_5.showModal();
+    }
+};
+
+
+//add to cart button ------
+let totalPrice = 0;
+const addToCartBtn = (plantInfo) =>{
+    const cartSection =  document.getElementById('trees-cart-section');
+    const plant = allPlantsInfo.find(plant => plant.id === plantInfo);
+    
+    if(plant){
+        alert("want to cart this item?")
+        cartSection.innerHTML += `
+          <div id="cart-item" class="flex justify-between items-center bg-red-200 rounded-lg mt-3 p-3">
+            <div class="mt-3">
+                   <h1 class="font-semibold">${plant.name}</h1>
+                   <p class="text-sm">৳${plant.price}</p>
+            </div>
+            <div onclick="removeCartItem(${plant.id})" class = "font-bold mr-3 cursor-pointer">
+                X
+            </div>
+          </div>
+        `
+        
+        totalPrice += plant.price;
+        const totalPriceDisplay = document.getElementById('total-price');
+        totalPriceDisplay.innerText = `${totalPrice}`;
+    }
+}
+
+
+
+//remove cart item ------
+
+const removeCartItem = (plantInfo) =>{
+    document.getElementById('cart-item').remove();
+    const  plant = allPlantsInfo.find(plant => plant.id === plantInfo);
+    if(plant){
+        alert('want to remove?')
+
+        totalPrice -= plant.price;
+        const totalPriceDisplay = document.getElementById('total-price');
+        totalPriceDisplay.innerText = `${totalPrice}`;
+    }
+}
 
