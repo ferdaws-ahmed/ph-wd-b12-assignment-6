@@ -176,14 +176,14 @@ const addToCartBtn = (plantInfo) =>{
     const plant = allPlantsInfo.find(plant => plant.id === plantInfo);
     
     if(plant){
-        alert("want to cart this item?")
+        alert("Want to add this item?")
         cartSection.innerHTML += `
           <div id="cart-item" class="flex justify-between items-center bg-red-200 rounded-lg mt-3 p-3">
             <div class="mt-3">
                    <h1 class="font-semibold">${plant.name}</h1>
                    <p class="text-sm">৳${plant.price}</p>
             </div>
-            <div onclick="removeCartItem(${plant.id})" class = "font-bold mr-3 cursor-pointer">
+            <div onclick="removeCartItem(${plant.id})" class = "font-semibold text-gray-600 mr-3 cursor-pointer">
                 X
             </div>
           </div>
@@ -203,7 +203,7 @@ const removeCartItem = (plantInfo) =>{
     document.getElementById('cart-item').remove();
     const  plant = allPlantsInfo.find(plant => plant.id === plantInfo);
     if(plant){
-        alert('want to remove?')
+        alert('Want to remove this item?')
 
         totalPrice -= plant.price;
         const totalPriceDisplay = document.getElementById('total-price');
